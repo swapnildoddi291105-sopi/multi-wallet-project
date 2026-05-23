@@ -1,5 +1,5 @@
-exports.up = function(knex) {
-  return knex.schema.createTable('transactions', function(table) {
+exports.up = async function(knex) {
+  await knex.schema.createTable('transactions', function(table) {
     table.increments('id').primary();
     table.integer('user_id').nullable();
     table.string('wallet_id').nullable();
@@ -12,22 +12,11 @@ exports.up = function(knex) {
     table.timestamp('parsed_at').defaultTo(knex.fn.now());
     table.string('status').defaultTo('new');
     table.string('source').nullable();
-    table.unique(['wallet_id', 'raw_text', 'parsed_at']); // prevents duplicate logs
+    table.text('error_message').nullable(); // Creates this cleanly from the start
+    table.unique(['wallet_id', 'raw_text', 'parsed_at']); 
   });
 };
 
-exports.down = function(knex) {
-  return knex.schema.dropTableIfExists('transactions');
-};
-
-exports.up = function(knex) {
-  return knex.schema.alterTable('transactions', function(table) {
-    table.text('error_message').nullable();
-  });
-};
-
-exports.down = function(knex) {
-  return knex.schema.alterTable('transactions', function(table) {
-    table.dropColumn('error_message');
-  });
+exports.down = async function(knex) {
+  await knex.schema.dropTableIfExists('transactions');
 };
